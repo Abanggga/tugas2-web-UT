@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITTA - Tracking Delivery Order Universitas Terbuka</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#001e40',
+            'primary-container': '#003366',
+            secondary: '#745b00',
+            'secondary-container': '#fecb00',
+            error: '#ba1a1a',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-[#f8f9ff] text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Vue App Container -->
+  <div id="app" class="flex-grow flex flex-col" v-cloak>
+
+    <!-- Sticky Navigation Header -->
+    <header class="sticky top-0 z-50 w-full bg-[#001e40] border-b border-slate-700/50 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <!-- Logo & Navigation -->
+        <div class="flex items-center gap-3 md:gap-8">
+          <!-- Hamburger Button (mobile only) -->
+          <button @click="showSidebar = true"
+            class="md:hidden w-10 h-10 rounded-lg flex items-center justify-center text-slate-200 hover:bg-white/10 transition-colors"
+            title="Buka Menu">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+
+          <!-- UT SITTA Logo -->
+          <a href="index.html" class="flex items-center gap-3 group">
+            <div
+              class="relative w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-md overflow-hidden transition-transform duration-300 group-hover:scale-105">
+              <img src="assets/img/logo_ut.png" alt="Logo UT" class="w-8 h-8 object-contain">
+              <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <div>
+              <span class="text-xl font-extrabold tracking-tight text-white block leading-none">SITTA</span>
+              <span class="text-[10px] text-slate-300 font-semibold tracking-wider uppercase">Bahan Ajar UT</span>
+            </div>
+          </a>
+
+          <!-- Nav Menu -->
+          <nav class="hidden md:flex items-center gap-1">
+            <a href="index.html"
+              class="relative px-4 py-2 text-sm font-medium rounded-lg text-slate-200 hover:text-white hover:bg-white/10 transition-colors">
+              Dashboard
+            </a>
+            <a href="stok.html"
+              class="relative px-4 py-2 text-sm font-medium rounded-lg text-slate-200 hover:text-white hover:bg-white/10 transition-colors">
+              Stok Bahan Ajar
+            </a>
+            <a href="tracking.html"
+              class="relative px-4 py-2 text-sm font-semibold rounded-lg text-[#001e40] bg-[#fecb00] dark:text-[#001e40] dark:bg-[#fecb00] transition-colors">
+              Tracking DO
+            </a>
+          </nav>
+        </div>
+
+        <!-- Utilities -->
+        <div class="flex items-center gap-4">
+          <!-- Theme Switcher -->
+          <button @click="toggleDarkMode"
+            class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
+            title="Ubah Tema">
+            <span class="material-symbols-outlined">
+              {{ darkMode ? 'light_mode' : 'dark_mode' }}
+            </span>
+          </button>
+
+          <!-- Divider -->
+          <div class="h-6 w-[1px] bg-slate-700/50"></div>
+
+          <!-- User Profile -->
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-lg bg-[#fecb00] flex items-center justify-center text-[#001e40] font-bold shadow-sm">
+              AD
+            </div>
+            <div class="hidden lg:block text-left">
+              <span class="text-xs text-slate-300 block leading-none">Petugas Gudang</span>
+              <span class="text-sm font-bold text-white mt-1 block">Admin SITTA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Sidebar Drawer -->
+    <div v-if="showSidebar" class="md:hidden fixed inset-0 z-50 flex">
+      <!-- Backdrop overlay -->
+      <div @click="showSidebar = false"
+        class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300"></div>
+
+      <!-- Sidebar content panel -->
+      <transition name="slide" appear>
+        <div
+          class="relative flex-1 flex flex-col max-w-xs w-full bg-[#001e40] text-white pt-5 pb-4 shadow-2xl transition-transform duration-300 transform translate-x-0 ease-in-out">
+          <!-- Close Button -->
+          <div class="absolute top-4 right-4">
+            <button @click="showSidebar = false"
+              class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <!-- Brand Logo in Sidebar -->
+          <div class="flex items-center gap-3 px-6 mb-8">
+            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-md">
+              <img src="assets/img/logo_ut.png" alt="Logo UT" class="w-8 h-8 object-contain">
+            </div>
+            <div>
+              <span class="text-xl font-extrabold tracking-tight text-white block leading-none">SITTA</span>
+              <span class="text-[10px] text-slate-300 font-semibold tracking-wider uppercase">Bahan Ajar UT</span>
+            </div>
+          </div>
+
+          <!-- Nav Links -->
+          <nav class="flex-grow px-4 space-y-2">
+            <a href="index.html"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-200 hover:bg-white/10 hover:text-white transition-colors">
+              <span class="material-symbols-outlined">dashboard</span>
+              Dashboard
+            </a>
+            <a href="stok.html"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-200 hover:bg-white/10 hover:text-white transition-colors">
+              <span class="material-symbols-outlined">inventory_2</span>
+              Stok Bahan Ajar
+            </a>
+            <a href="tracking.html"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-xl bg-[#fecb00] text-[#001e40]">
+              <span class="material-symbols-outlined">local_shipping</span>
+              Tracking DO
+            </a>
+          </nav>
+
+          <!-- User Profile & Theme in Sidebar -->
+          <div class="px-6 py-4 border-t border-slate-700/50 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-lg bg-[#fecb00] flex items-center justify-center text-[#001e40] font-bold shadow-sm">
+                AD
+              </div>
+              <div class="text-left">
+                <span class="text-xs text-slate-300 block leading-none">Petugas Gudang</span>
+                <span class="text-sm font-bold text-white mt-1 block">Admin SITTA</span>
+              </div>
+            </div>
+            <!-- Theme toggle inside sidebar -->
+            <button @click="toggleDarkMode"
+              class="w-full py-2.5 rounded-xl border border-slate-700/50 flex items-center justify-center gap-2 text-sm font-medium text-slate-200 hover:bg-white/10 transition-colors">
+              <span class="material-symbols-outlined text-lg">
+                {{ darkMode ? 'light_mode' : 'dark_mode' }}
+              </span>
+              <span>Mode {{ darkMode ? 'Terang' : 'Gelap' }}</span>
+            </button>
+          </div>
+        </div>
+      </transition>
+    </div>
+
+    <!-- Toast Notification -->
+    <div v-show="toast.show"
+      class="fixed top-20 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-white transition-all duration-300 fade-in-up"
+      :class="{'bg-emerald-600 border-emerald-500': toast.type === 'success', 'bg-red-600 border-red-500': toast.type === 'error', 'bg-blue-600 border-blue-500': toast.type === 'info'}">
+      <span class="material-symbols-outlined">
+        {{ toast.type === 'success' ? 'check_circle' : (toast.type === 'error' ? 'error' : 'info') }}
+      </span>
+      <span class="text-sm font-semibold">{{ toast.message }}</span>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 mb-16 md:mb-8">
+
+      <!-- Module Header -->
+      <section class="mb-8 fade-in-up">
+        <h1 class="text-3xl font-extrabold tracking-tight text-primary dark:text-white">Tracking & Delivery Order (DO)
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Registrasi transaksi pengiriman paket bahan ajar baru
+          dan lacak status perjalanannya.</p>
+      </section>
+
+      <!-- Grid columns: Form (1/3) & Table (2/3) -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Left: Register DO Form (1/3) -->
+        <div class="lg:col-span-1 fade-in-up">
+          <div
+            class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <h2 class="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2 mb-4">
+              <span class="material-symbols-outlined text-indigo-500">add_box</span>
+              Registrasi DO Baru
+            </h2>
+
+            <form @submit.prevent="submitDO" class="space-y-4">
+
+              <!-- Nomor DO (Auto generated) -->
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Nomor
+                  DO (Otomatis)</label>
+                <div class="relative">
+                  <input type="text" :value="generatedDoNumber" disabled
+                    class="w-full px-3 py-2 pl-9 text-sm bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-850 rounded-xl font-mono font-bold text-primary dark:text-yellow-500 cursor-not-allowed">
+                  <span class="material-symbols-outlined absolute left-3 top-2 text-slate-400 text-lg">tag</span>
+                </div>
+              </div>
+
+              <!-- NIM -->
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">NIM
+                  Mahasiswa *</label>
+                <input type="text" v-model="formDo.nim" @input="formDo.nim = formDo.nim.replace(/\D/g, '')"
+                  maxlength="9" placeholder="Masukkan 9 digit NIM" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              </div>
+
+              <!-- Nama -->
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Nama
+                  Lengkap *</label>
+                <input type="text" v-model="formDo.nama" placeholder="Masukkan nama penerima" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              </div>
+
+              <!-- Ekspedisi -->
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Ekspedisi
+                  Pengiriman *</label>
+                <select v-model="formDo.ekspedisi" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+                  <option value="" disabled>Pilih Opsi Kurir...</option>
+                  <option v-for="exp in pengirimanList" :key="exp.kode" :value="exp.kode">{{ exp.nama }}</option>
+                </select>
+              </div>
+
+              <!-- Paket Bahan Ajar -->
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Paket
+                  Bahan Ajar *</label>
+                <select v-model="formDo.paket" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+                  <option value="" disabled>Pilih Paket...</option>
+                  <option v-for="pkt in paket" :key="pkt.kode" :value="pkt.kode">{{ pkt.kode }} - {{ pkt.nama }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Dynamic Package Items Info (v-if) -->
+              <div v-if="formDo.paket"
+                class="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 rounded-xl mt-2 fade-in-up">
+                <span
+                  class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block mb-1">Detail
+                  Isi Paket:</span>
+                <ul class="space-y-1">
+                  <li v-for="book in selectedPackageContents" :key="book.kode"
+                    class="text-xs flex justify-between gap-2">
+                    <span class="font-bold text-slate-700 dark:text-slate-300">{{ book.kode }}</span>
+                    <span class="text-slate-500 dark:text-slate-400 truncate max-w-[180px]">{{ book.judul }}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Tanggal Kirim -->
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Tanggal
+                  Kirim *</label>
+                <input type="date" v-model="formDo.tanggalKirim" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              </div>
+
+              <!-- Total Harga (Read-only) -->
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Total
+                  Biaya Paket</label>
+                <div
+                  class="px-3 py-2 text-sm bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl font-bold text-slate-800 dark:text-white">
+                  Rp {{ formDo.total.toLocaleString('id-ID') }}
+                </div>
+              </div>
+
+              <button type="submit"
+                class="w-full py-2.5 bg-primary dark:bg-secondary-container hover:bg-primary-container dark:hover:bg-yellow-400 text-white dark:text-primary font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95">
+                <span class="material-symbols-outlined text-lg">local_shipping</span>
+                Kirim & Daftarkan DO
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right: DO List & Tracking Status Timeline (2/3) -->
+        <div class="lg:col-span-2 space-y-4 fade-in-up">
+
+          <div
+            class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+            <h2 class="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2 mb-6">
+              <span class="material-symbols-outlined text-indigo-500">list_alt</span>
+              Koleksi Pengiriman DO Bahan Ajar
+            </h2>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                  <tr class="border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">No.
+                      DO</th>
+                    <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                      Penerima</th>
+                    <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                      Ekspedisi</th>
+                    <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Paket
+                    </th>
+                    <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tgl
+                      Kirim</th>
+                    <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total
+                      Biaya</th>
+                    <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                      Status</th>
+                    <th
+                      class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">
+                      Lacak</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-850">
+                  <template v-for="item in trackingList">
+                    <!-- DO Row -->
+                    <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
+                      <td class="py-4 text-sm font-bold text-primary dark:text-white">{{ item.id }}</td>
+                      <td class="py-4 text-sm">
+                        <p class="font-bold text-slate-800 dark:text-white leading-none mb-0.5">{{ item.nama }}</p>
+                        <span class="font-mono text-[10px] text-slate-400 dark:text-slate-500">{{ item.nim }}</span>
+                      </td>
+                      <td class="py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">
+                        {{ getExpeditionName(item.ekspedisi) }}
+                      </td>
+                      <td class="py-4 text-sm font-semibold text-indigo-600 dark:text-indigo-400" v-text="item.paket"></td>
+                      <td class="py-4 text-sm text-slate-500 dark:text-slate-400 font-medium" v-text="item.tanggalKirim"></td>
+                      <td class="py-4 text-sm font-extrabold text-slate-800 dark:text-white">
+                        Rp {{ item.total.toLocaleString('id-ID') }}
+                      </td>
+                      <td class="py-4">
+                        <span class="inline-flex px-2.5 py-0.5 text-[11px] font-extrabold rounded-full" :class="{
+                                'bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/30': item.status === 'Dalam Perjalanan',
+                                'bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/30': item.status === 'Diterima' || item.status === 'Dikirim'
+                              }">
+                          {{ item.status }}
+                        </span>
+                      </td>
+                      <td class="py-4 text-right">
+                        <button @click="toggleDetail(item.id)"
+                          class="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-indigo-600 dark:text-indigo-400 flex items-center justify-center transition-transform"
+                          :class="{'rotate-180': expandedDoId === item.id}" title="Lihat Status Perjalanan">
+                          <span class="material-symbols-outlined text-lg">keyboard_arrow_down</span>
+                        </button>
+                      </td>
+                    </tr>
+
+                    <!-- Expandable Tracking Status Timeline Row -->
+                    <tr v-if="expandedDoId === item.id" class="bg-slate-50/55 dark:bg-slate-950/35">
+                      <td colspan="8" class="p-6">
+                        <div class="max-w-xl">
+                          <h3
+                            class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-md">route</span>
+                            Riwayat Pengiriman Logistik ({{ item.id }})
+                          </h3>
+
+                          <ul
+                            class="space-y-4 relative before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-200 dark:before:bg-slate-800">
+                            <li v-for="(log, logIdx) in item.perjalanan" :key="logIdx" class="flex gap-3 text-xs pl-1">
+                              <span
+                                class="relative z-10 w-[12px] h-[12px] rounded-full border-2 bg-white dark:bg-slate-900 border-indigo-500 mt-1"></span>
+                              <div>
+                                <p class="font-bold text-slate-700 dark:text-slate-200">{{ log.keterangan }}</p>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{{ log.waktu }}</p>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-[#001e40] border-t border-slate-700/50 py-6 mt-auto">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-200">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded bg-[#fecb00] flex items-center justify-center text-[#001e40] font-black">
+            U
+          </div>
+          <span>&copy; 2026 SITTA - Universitas Terbuka. All rights reserved.</span>
+        </div>
+        <div class="flex gap-4">
+          <a href="#" class="hover:text-white hover:underline">Kebijakan Privasi</a>
+          <a href="#" class="hover:text-white hover:underline">Ketentuan Layanan</a>
+          <a href="#" class="hover:text-white hover:underline">Pusat Bantuan</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Vue.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <!-- App JS -->
+  <script src="js/tracking-app.js"></script>
+</body>
+
+</html>
