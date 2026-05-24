@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITTA - Kelola Stok Bahan Ajar Universitas Terbuka</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#001e40',
+            'primary-container': '#003366',
+            secondary: '#745b00',
+            'secondary-container': '#fecb00',
+            error: '#ba1a1a',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-[#f8f9ff] text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Vue App Container -->
+  <div id="app" class="flex-grow flex flex-col" v-cloak>
+
+    <!-- Sticky Navigation Header -->
+    <header class="sticky top-0 z-50 w-full bg-[#001e40] border-b border-slate-700/50 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <!-- Logo & Navigation -->
+        <div class="flex items-center gap-3 md:gap-8">
+          <!-- Hamburger Button (mobile only) -->
+          <button @click="showSidebar = true"
+            class="md:hidden w-10 h-10 rounded-lg flex items-center justify-center text-slate-200 hover:bg-white/10 transition-colors"
+            title="Buka Menu">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+
+          <!-- UT SITTA Logo -->
+          <a href="index.html" class="flex items-center gap-3 group">
+            <div
+              class="relative w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-md overflow-hidden transition-transform duration-300 group-hover:scale-105">
+              <img src="assets/img/logo_ut.png" alt="Logo UT" class="w-8 h-8 object-contain">
+              <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <div>
+              <span class="text-xl font-extrabold tracking-tight text-white block leading-none">SITTA</span>
+              <span class="text-[10px] text-slate-300 font-semibold tracking-wider uppercase">Bahan Ajar UT</span>
+            </div>
+          </a>
+
+          <!-- Nav Menu -->
+          <nav class="hidden md:flex items-center gap-1">
+            <a href="index.html"
+              class="relative px-4 py-2 text-sm font-medium rounded-lg text-slate-200 hover:text-white hover:bg-white/10 transition-colors">
+              Dashboard
+            </a>
+            <a href="stok.html"
+              class="relative px-4 py-2 text-sm font-semibold rounded-lg text-[#001e40] bg-[#fecb00] dark:text-[#001e40] dark:bg-[#fecb00] transition-colors">
+              Stok Bahan Ajar
+            </a>
+            <a href="tracking.html"
+              class="relative px-4 py-2 text-sm font-medium rounded-lg text-slate-200 hover:text-white hover:bg-white/10 transition-colors">
+              Tracking DO
+            </a>
+          </nav>
+        </div>
+
+        <!-- Utilities -->
+        <div class="flex items-center gap-4">
+          <!-- Theme Switcher -->
+          <button @click="toggleDarkMode"
+            class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
+            title="Ubah Tema">
+            <span class="material-symbols-outlined">
+              {{ darkMode ? 'light_mode' : 'dark_mode' }}
+            </span>
+          </button>
+
+          <!-- Divider -->
+          <div class="h-6 w-[1px] bg-slate-700/50"></div>
+
+          <!-- User Profile -->
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-lg bg-[#fecb00] flex items-center justify-center text-[#001e40] font-bold shadow-sm">
+              AD
+            </div>
+            <div class="hidden lg:block text-left">
+              <span class="text-xs text-slate-300 block leading-none">Petugas Gudang</span>
+              <span class="text-sm font-bold text-white mt-1 block">Admin SITTA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Sidebar Drawer -->
+    <div v-if="showSidebar" class="md:hidden fixed inset-0 z-50 flex">
+      <!-- Backdrop overlay -->
+      <div @click="showSidebar = false"
+        class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300"></div>
+
+      <!-- Sidebar content panel -->
+      <transition name="slide" appear>
+        <div
+          class="relative flex-1 flex flex-col max-w-xs w-full bg-[#001e40] text-white pt-5 pb-4 shadow-2xl transition-transform duration-300 transform translate-x-0 ease-in-out">
+          <!-- Close Button -->
+          <div class="absolute top-4 right-4">
+            <button @click="showSidebar = false"
+              class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <!-- Brand Logo in Sidebar -->
+          <div class="flex items-center gap-3 px-6 mb-8">
+            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-md">
+              <img src="assets/img/logo_ut.png" alt="Logo UT" class="w-8 h-8 object-contain">
+            </div>
+            <div>
+              <span class="text-xl font-extrabold tracking-tight text-white block leading-none">SITTA</span>
+              <span class="text-[10px] text-slate-300 font-semibold tracking-wider uppercase">Bahan Ajar UT</span>
+            </div>
+          </div>
+
+          <!-- Nav Links -->
+          <nav class="flex-grow px-4 space-y-2">
+            <a href="index.html"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-200 hover:bg-white/10 hover:text-white transition-colors">
+              <span class="material-symbols-outlined">dashboard</span>
+              Dashboard
+            </a>
+            <a href="stok.html"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-xl bg-[#fecb00] text-[#001e40]">
+              <span class="material-symbols-outlined">inventory_2</span>
+              Stok Bahan Ajar
+            </a>
+            <a href="tracking.html"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-200 hover:bg-white/10 hover:text-white transition-colors">
+              <span class="material-symbols-outlined">local_shipping</span>
+              Tracking DO
+            </a>
+          </nav>
+
+          <!-- User Profile & Theme in Sidebar -->
+          <div class="px-6 py-4 border-t border-slate-700/50 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-lg bg-[#fecb00] flex items-center justify-center text-[#001e40] font-bold shadow-sm">
+                AD
+              </div>
+              <div class="text-left">
+                <span class="text-xs text-slate-300 block leading-none">Petugas Gudang</span>
+                <span class="text-sm font-bold text-white mt-1 block">Admin SITTA</span>
+              </div>
+            </div>
+            <!-- Theme toggle inside sidebar -->
+            <button @click="toggleDarkMode"
+              class="w-full py-2.5 rounded-xl border border-slate-700/50 flex items-center justify-center gap-2 text-sm font-medium text-slate-200 hover:bg-white/10 transition-colors">
+              <span class="material-symbols-outlined text-lg">
+                {{ darkMode ? 'light_mode' : 'dark_mode' }}
+              </span>
+              <span>Mode {{ darkMode ? 'Terang' : 'Gelap' }}</span>
+            </button>
+          </div>
+        </div>
+      </transition>
+    </div>
+
+    <!-- Toast Notification -->
+    <div v-show="toast.show"
+      class="fixed top-20 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-white transition-all duration-300 fade-in-up"
+      :class="{'bg-emerald-600 border-emerald-500': toast.type === 'success', 'bg-red-600 border-red-500': toast.type === 'error', 'bg-blue-600 border-blue-500': toast.type === 'info'}">
+      <span class="material-symbols-outlined">
+        {{ toast.type === 'success' ? 'check_circle' : (toast.type === 'error' ? 'error' : 'info') }}
+      </span>
+      <span class="text-sm font-semibold">{{ toast.message }}</span>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 mb-16 md:mb-8">
+
+      <!-- Module Header -->
+      <section class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 fade-in-up">
+        <div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-primary dark:text-white">Manajemen Stok Bahan Ajar</h1>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Daftar inventori bahan ajar lengkap untuk seluruh
+            UT Daerah (UPBJJ).</p>
+        </div>
+        <button @click="openAddModal"
+          class="px-5 py-2.5 bg-[#001e40] dark:bg-[#fecb00] hover:bg-slate-800 dark:hover:bg-yellow-450 text-white dark:text-[#001e40] font-bold text-sm rounded-xl shadow-md flex items-center gap-2 transition-transform active:scale-95">
+          <span class="material-symbols-outlined text-lg">add_box</span>
+          Tambah Stok Baru
+        </button>
+      </section>
+
+      <!-- Advanced Filter Panel -->
+      <section
+        class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm mb-8 fade-in-up">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h2 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-500">tune</span>
+            Penyaringan Data
+          </h2>
+          <button @click="resetFilters"
+            class="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline flex items-center gap-0.5">
+            <span class="material-symbols-outlined text-[14px]">restart_alt</span>
+            Reset Filter
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <!-- Text Search -->
+          <div class="relative">
+            <label
+              class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Cari
+              Kode / Judul</label>
+            <input type="text" v-model="searchQuery" placeholder="Cari buku..."
+              class="w-full px-4 py-2 pl-10 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+            <span class="material-symbols-outlined absolute left-3 top-7 text-slate-400 text-lg">search</span>
+          </div>
+
+          <!-- UT-Daerah (UPBJJ) Filter -->
+          <div>
+            <label
+              class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">UT-Daerah</label>
+            <select v-model="selectedUpbjj"
+              class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              <option value="">Semua UT Daerah</option>
+              <option v-for="upbjj in upbjjList" :key="upbjj" :value="upbjj">{{ upbjj }}</option>
+            </select>
+          </div>
+
+          <!-- Dependent Kategori Filter (only shows if UT-Daerah selected) -->
+          <div v-if="selectedUpbjj" class="fade-in-up">
+            <label
+              class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Kategori
+              Mata Kuliah</label>
+            <select v-model="selectedKategori"
+              class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              <option value="">Semua Kategori</option>
+              <option v-for="cat in kategoriList" :key="cat" :value="cat">{{ cat }}</option>
+            </select>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div>
+            <label
+              class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Urutkan
+              Berdasarkan</label>
+            <select v-model="sortBy"
+              class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              <option value="judul">Judul Mata Kuliah</option>
+              <option value="stock">Jumlah Stok</option>
+              <option value="harga">Harga Satuan</option>
+            </select>
+          </div>
+
+          <!-- Threshold Toggle Checkbox / Radio -->
+          <div class="flex items-center md:pt-6">
+            <label class="flex items-center gap-3 cursor-pointer select-none">
+              <div class="relative">
+                <input type="checkbox" v-model="showLowStockOnly" class="sr-only peer">
+                <div
+                  class="w-10 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-amber-500">
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                Butuh Re-order Kritis
+              </span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stok Data Table -->
+      <section
+        class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden mb-8 fade-in-up">
+        <!-- Table Control Info -->
+        <div
+          class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-slate-50/50 dark:bg-slate-950/20">
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            Menampilkan <strong class="text-slate-800 dark:text-white">{{ filteredStok.length }}</strong> dari <strong
+              class="text-slate-800 dark:text-white">{{ stok.length }}</strong> data bahan ajar
+          </span>
+          <!-- Order Indicators Info -->
+          <span class="text-[10px] text-slate-400 dark:text-slate-500 italic">
+            * Klik header kolom untuk mengurutkan data (Judul, Stok, Harga)
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[900px]">
+            <thead>
+              <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/10">
+                <th @click="toggleSort('judul')"
+                  class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 dark:hover:text-white transition-colors">
+                  <div class="flex items-center gap-1.5">
+                    Mata Kuliah (Kode/Judul)
+                    <span class="material-symbols-outlined text-xs" v-if="sortBy === 'judul'">
+                      {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                    </span>
+                  </div>
+                </th>
+                <th class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Kategori
+                </th>
+                <th class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">UT-Daerah
+                </th>
+                <th class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Lokasi Rak
+                </th>
+                <th @click="toggleSort('stock')"
+                  class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 dark:hover:text-white transition-colors">
+                  <div class="flex items-center gap-1.5">
+                    Stok / Safety
+                    <span class="material-symbols-outlined text-xs" v-if="sortBy === 'stock'">
+                      {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                    </span>
+                  </div>
+                </th>
+                <th @click="toggleSort('harga')"
+                  class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 dark:hover:text-white transition-colors">
+                  <div class="flex items-center gap-1.5">
+                    Harga Satuan
+                    <span class="material-symbols-outlined text-xs" v-if="sortBy === 'harga'">
+                      {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                    </span>
+                  </div>
+                </th>
+                <th class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status
+                </th>
+                <th class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Catatan
+                </th>
+                <th
+                  class="p-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">
+                  Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr v-for="item in filteredStok" :key="item.kode"
+                class="group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
+                <!-- Kode & Judul -->
+                <td class="p-4 text-sm max-w-[280px]">
+                  <p class="font-bold text-slate-800 dark:text-white leading-snug">{{ item.judul }}</p>
+                  <span class="font-mono text-xs text-indigo-600 dark:text-indigo-400">{{ item.kode }}</span>
+                </td>
+                <!-- Kategori -->
+                <td class="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  <span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs" v-text="item.kategori"></span>
+                </td>
+                <!-- UPBJJ -->
+                <td class="p-4 text-sm text-slate-600 dark:text-slate-300 font-medium" v-text="item.upbjj"></td>
+                <!-- Rak -->
+                <td class="p-4 text-sm font-mono font-bold text-slate-700 dark:text-slate-400" v-text="item.lokasiRak"></td>
+                <!-- Qty & Safety -->
+                <td class="p-4 text-sm">
+                  <div class="flex items-center gap-1">
+                    <span class="font-extrabold"
+                      :class="{'text-red-500': item.qty === 0, 'text-amber-500': item.qty < item.safety && item.qty > 0, 'text-emerald-500': item.qty >= item.safety}">
+                      {{ item.qty }}
+                    </span>
+                    <span class="text-slate-400 text-xs">/ {{ item.safety }}</span>
+                  </div>
+                </td>
+                <!-- Harga -->
+                <td class="p-4 text-sm font-bold text-slate-800 dark:text-white">
+                  Rp {{ item.harga.toLocaleString('id-ID') }}
+                </td>
+                <!-- Status Badge -->
+                <td class="p-4">
+                  <!-- Aman (qty >= safety) -->
+                  <span v-if="item.qty >= item.safety"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/30">
+                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                    Aman
+                  </span>
+                  <!-- Menipis (qty < safety && qty > 0) -->
+                  <span v-else-if="item.qty < item.safety && item.qty > 0"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/30">
+                    <span class="material-symbols-outlined text-[14px]">warning</span>
+                    Menipis
+                  </span>
+                  <!-- Kosong (qty == 0) -->
+                  <span v-else
+                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-red-50 text-red-700 border border-red-100 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/30">
+                    <span class="material-symbols-outlined text-[14px]">cancel</span>
+                    Kosong
+                  </span>
+                </td>
+                <!-- Catatan (render HTML) -->
+                <td class="p-4 text-xs text-slate-500 dark:text-slate-400" v-html="item.catatanHTML">
+                </td>
+                <!-- Actions -->
+                <td class="p-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button @click="editBook(item)"
+                      class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-indigo-600 dark:text-indigo-400 flex items-center justify-center transition-colors"
+                      title="Edit Stok">
+                      <span class="material-symbols-outlined text-lg">edit</span>
+                    </button>
+                    <button @click="deleteBook(item)"
+                      class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-red-600 dark:text-red-400 flex items-center justify-center transition-colors"
+                      title="Hapus Buku">
+                      <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Empty state -->
+              <tr v-if="filteredStok.length === 0">
+                <td colspan="9" class="p-8 text-center text-slate-400 dark:text-slate-500">
+                  <span class="material-symbols-outlined text-4xl block mb-2">inbox</span>
+                  Tidak ada bahan ajar yang cocok dengan filter aktif.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Add/Edit Modal Dialog -->
+      <div v-if="showFormModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm transition-all duration-300">
+        <div
+          class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 relative animate-modal-in">
+          <!-- Close Button -->
+          <button @click="closeFormModal"
+            class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors"
+            title="Tutup Modal">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+
+          <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <h2 class="text-xl font-bold text-slate-850 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-indigo-500">
+                {{ isEditMode ? 'edit_document' : 'add_box' }}
+              </span>
+              {{ isEditMode ? 'Edit Stok Bahan Ajar' : 'Tambah Bahan Ajar Baru' }}
+            </h2>
+            <span v-if="isEditMode"
+              class="text-xs font-mono bg-yellow-100 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-300 px-2 py-0.5 rounded">
+              Sedang Mengedit: {{ formBook.kode }}
+            </span>
+          </div>
+
+          <form @submit.prevent="saveBook" class="space-y-4">
+            <!-- Row 1: Kode & Judul -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Kode
+                  Mata Kuliah *</label>
+                <!-- Disable kode modification in edit mode to preserve primary key integrity -->
+                <input type="text" v-model="formBook.kode" :disabled="isEditMode" placeholder="Misal: EKMA4116" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              </div>
+              <div class="sm:col-span-2">
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Judul
+                  / Nama Mata Kuliah *</label>
+                <input type="text" v-model="formBook.judul" placeholder="Misal: Pengantar Akuntansi" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              </div>
+            </div>
+
+            <!-- Row 2: Kategori & UT-Daerah -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Kategori
+                  *</label>
+                <select v-model="formBook.kategori" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+                  <option value="" disabled>Pilih Kategori...</option>
+                  <option v-for="cat in kategoriList" :key="cat" :value="cat">{{ cat }}</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">UT-Daerah
+                  (UPBJJ) *</label>
+                <select v-model="formBook.upbjj" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+                  <option value="" disabled>Pilih UPBJJ...</option>
+                  <option v-for="upbjj in upbjjList" :key="upbjj" :value="upbjj">{{ upbjj }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 3: Rak, Harga, Stok & Safety -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Lokasi
+                  Rak *</label>
+                <input type="text" v-model="formBook.lokasiRak" placeholder="R1-A1" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Harga
+                  (Rp) *</label>
+                <input type="number" v-model.number="formBook.harga" min="0" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Stok
+                  (Qty) *</label>
+                <input type="number" v-model.number="formBook.qty" min="0" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Safety
+                  Limit *</label>
+                <input type="number" v-model.number="formBook.safety" min="0" required
+                  class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all">
+              </div>
+            </div>
+
+            <!-- Row 4: Catatan HTML -->
+            <div>
+              <label
+                class="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Catatan
+                HTML (Opsional)</label>
+              <textarea v-model="formBook.catatanHTML" rows="2"
+                placeholder="Misal: <strong>Edisi Khusus</strong> atau <em>Tinta Hitam</em>"
+                class="w-full px-3 py-2 text-sm bg-slate-50 hover:bg-slate-100/50 focus:bg-white dark:bg-slate-950 dark:hover:bg-slate-900/50 dark:focus:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-container dark:focus:ring-yellow-500/50 focus:border-transparent transition-all"></textarea>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button type="button" @click="closeFormModal"
+                class="px-5 py-2 text-sm font-semibold border border-slate-250 dark:border-slate-750 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition-all">
+                Batal
+              </button>
+              <button type="submit"
+                class="px-6 py-2 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-all shadow-md flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-lg">save</span>
+                {{ isEditMode ? 'Perbarui Data' : 'Simpan Data' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-[#001e40] border-t border-slate-700/50 py-6 mt-auto">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-200">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded bg-[#fecb00] flex items-center justify-center text-[#001e40] font-black">
+            U
+          </div>
+          <span>&copy; 2026 SITTA - Universitas Terbuka. All rights reserved.</span>
+        </div>
+        <div class="flex gap-4">
+          <a href="#" class="hover:text-white hover:underline">Kebijakan Privasi</a>
+          <a href="#" class="hover:text-white hover:underline">Ketentuan Layanan</a>
+          <a href="#" class="hover:text-white hover:underline">Pusat Bantuan</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Vue.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <!-- App JS -->
+  <script src="js/stok-app.js"></script>
+</body>
+
+</html>
